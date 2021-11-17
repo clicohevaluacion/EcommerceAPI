@@ -1,1 +1,1 @@
-web: gunicorn CronoAPI.wsgi
+web: gunicorn EcommerceAPI.wsgi
