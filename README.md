@@ -6,8 +6,15 @@ postulante en Clicoh
 clicohevaluacion@gmail.com
 
 clicohevaluacion99
+
 heroku
+
 clicohevaluacion99+
 
 git
+
 clicoh99
+
+superuser
+
+admin-admin99

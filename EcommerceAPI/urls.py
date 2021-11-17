@@ -25,10 +25,10 @@ from Ventas.views import *
 
 router = routers.DefaultRouter(trailing_slash=False)
 
-######### Chicos #####################
-router.register(r'hora', HoraViewSet)
-router.register(r'tarea', TareaViewSet)
-router.register(r'proyecto', ProyectoViewSet)
+######### Ventas #####################
+router.register(r'product', ProductViewSet)
+router.register(r'order', OrderViewSet)
+router.register(r'orderDetail', OrderDetailViewSet)
 
 
 urlpatterns = [

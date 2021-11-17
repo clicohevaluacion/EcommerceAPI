@@ -23,7 +23,7 @@ class Product(models.Model):
         return str(self.id)
 
 class Order(models.Model):
-    id =        models.IntegerField(db_column='id', blank=False, null=False, unique=True)
+    id =        models.IntegerField(db_column='id', primary_key=True, blank=False, null=False, unique=True)
     date_time = models.DateTimeField(db_column='fDatetime', null=True, blank=True)
 
     class Meta:
