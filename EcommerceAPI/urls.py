@@ -30,10 +30,17 @@ router.register(r'product', ProductViewSet)
 router.register(r'order', OrderViewSet)
 router.register(r'orderDetail', OrderDetailViewSet)
 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 
 urlpatterns = [
     url(r'^', admin.site.urls),
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    url('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 #########################################################################
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

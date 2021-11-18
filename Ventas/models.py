@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 
 
 class Product(models.Model):
-    id = models.CharField(max_length=20, primary_key=True)
+    id = models.CharField(max_length=20, primary_key=True, blank=False)
     # id =    models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name =  models.CharField(db_column='sName', max_length=100, blank=True, null=True, unique=True)
     price = models.FloatField(db_column='fPrice', blank=False, null=False, default=0)
@@ -24,7 +24,7 @@ class Product(models.Model):
 
 class Order(models.Model):
     id =        models.IntegerField(db_column='id', primary_key=True, blank=False, null=False, unique=True)
-    date_time = models.DateTimeField(db_column='fDatetime', null=True, blank=True)
+    date_time = models.DateTimeField(db_column='fDatetime', null=True, blank=True, auto_now_add=True)
 
     class Meta:
         db_table = 'Order'

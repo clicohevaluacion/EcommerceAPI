@@ -87,8 +87,11 @@ class ProductViewSet(ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         try:
+
             instance = self.get_object()
             self.perform_destroy(instance)
+            # existe = Product.objects.get(id=request.data.get('id'))
+            # self.perform_destroy(existe)
         except Http404:
             pass
         return Response(status=status.HTTP_204_NO_CONTENT)
