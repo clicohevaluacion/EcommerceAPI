@@ -2,7 +2,7 @@
 version: '2'
 
 services:
-  limalimon:
+  clicohevaluacion:
     build: .
     command: /bin/bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:9995"
     ports:
@@ -10,15 +10,15 @@ services:
     networks:
       - django
     volumes:
-    - "limalimon:/code"
+    - "clicohevaluacion:/code"
 
 networks:
     django:
         external: true
 volumes:
-    limalimon:
+    clicohevaluacion:
         driver: local
         driver_opts:
             o: bind
             type: none
-            device: /home/proyectos/django/limalimon_docker
+            device: /home/proyectos/django/clicohevaluacion_docker
