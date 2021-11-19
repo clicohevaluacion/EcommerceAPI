@@ -164,10 +164,11 @@ class OrderViewSet(ModelViewSet):
             instance = self.get_object()
             with transaction.atomic():
                 orderdetail = OrderDetail.objects.filter(order=instance)
-                for list_elt in request.data:
-                    exiteProducto = Product.objects.filter(id=list_elt.get("product"))
-                    exiteProducto.update(stock=exiteProducto[0].stock + int(list_elt["cuantity"]))
-                orderdetail.delete()
+                if orderdetail.count() > 0:
+                    for elto in range(len(orderdetail)):
+                        exiteProducto = Product.objects.filter(id=orderdetail[elto].product)
+                        exiteProducto.update(stock=exiteProducto[0].stock + int(orderdetail[elto].cuantity))
+                    orderdetail.delete()
                 self.perform_destroy(instance)
         except:
             return Response({"Error": ["Error al eliminar la orden"]}, status=status.HTTP_400_BAD_REQUEST)
@@ -350,6 +351,8 @@ class OrderwithDetailsViewSet(ModelViewSet):
         if date_time is not None:
             queryset = queryset.filter(date_time=date_time)
 
+        queryset = queryset.order_by('id')
+
         return queryset
 
     def create(self, request, *args, **kwargs):
@@ -358,26 +361,30 @@ class OrderwithDetailsViewSet(ModelViewSet):
         serializer.is_valid()
         order = []
         for list_elt in request.data:
+            existe = Order.objects.filter(id=list_elt.get('id'))
 
-            with transaction.atomic():
-                neworder = Order.objects.create(id=list_elt["id"], date_time=list_elt["date_time"])
-                for list_elt_detail in list_elt["order"]:
+            if not existe.count() > 0:
 
-                    if "product" in list_elt_detail:
-                        if list_elt_detail["product"] is not None:
-                            exiteProducto = Product.objects.filter(id=list_elt_detail.get("product"))
+                with transaction.atomic():
+                    neworder = Order.objects.create(id=list_elt["id"], date_time=list_elt["date_time"])
+                    for list_elt_detail in list_elt["order"]:
 
-                            if exiteProducto.count() > 0:
-                                list_elt_detail["product"] = Product.objects.get(id=list_elt_detail.get("product"))
+                        if "product" in list_elt_detail:
+                            if list_elt_detail["product"] is not None:
+                                exiteProducto = Product.objects.filter(id=list_elt_detail.get("product"))
+
+                                if exiteProducto.count() > 0:
+                                    list_elt_detail["product"] = Product.objects.get(id=list_elt_detail.get("product"))
+                                else:
+                                    return Response({"Error": ["No existe el producto"]},
+                                                    status=status.HTTP_400_BAD_REQUEST)
                             else:
-                                return Response({"Error": ["No existe el producto"]},
-                                                status=status.HTTP_400_BAD_REQUEST)
-                        else:
-                            return Response({"Error": ["Ingrese un Producto"]}, status=status.HTTP_400_BAD_REQUEST)
+                                return Response({"Error": ["Ingrese un Producto"]}, status=status.HTTP_400_BAD_REQUEST)
 
-                    OrderDetail.objects.create(order=neworder, cuantity=list_elt_detail["cuantity"], product=list_elt_detail["product"])
-                    exiteProducto.update(stock=list_elt_detail["product"].stock - int(list_elt_detail["cuantity"]))
-
+                        OrderDetail.objects.create(order=neworder, cuantity=list_elt_detail["cuantity"], product=list_elt_detail["product"])
+                        exiteProducto.update(stock=list_elt_detail["product"].stock - int(list_elt_detail["cuantity"]))
+            else:
+                return Response({"Error": ["Ya existe la orden"]}, status=status.HTTP_400_BAD_REQUEST)
 
             order.append(list_elt.get('id'))
         results = Order.objects.filter(id__in=order)
