@@ -42,13 +42,13 @@ Se puede crear o editar los productos de manera simultanea con el metodo "POST" 
 Si el id del producto existe se modificara los datos enviados.
 Si el id no existe se creara el producto
 
-Con el metodo "DELETE" se puede eliminar un producto introduciendo a continuacion de https://clicohevaluacion.herokuapp.com/api/product/ el id del producto
+Con el metodo "DELETE" se puede eliminar un producto introduciendo a continuacion de https://clicohevaluacion.herokuapp.com/api/product/{pk} donde {pk} es el id del producto
 
 Por ejemplo https://clicohevaluacion.herokuapp.com/api/product/Cara-Limon
 
 Solo se podra borrar productos que no se encuentren en un detalle de una orden
 
-Con el metodo "GET" se puede obtener un producto introduciendo a continuacion de https://clicohevaluacion.herokuapp.com/api/product/ el id del producto
+Con el metodo "GET" se puede obtener un producto introduciendo a continuacion de https://clicohevaluacion.herokuapp.com/api/product/{pk} donde {pk} es el id del producto
 
 Por ejemplo https://clicohevaluacion.herokuapp.com/api/product/Cara-Limon
 
@@ -56,11 +56,11 @@ Por ejemplo https://clicohevaluacion.herokuapp.com/api/product/Cara-Limon
 
 Se puede listar todas las ordenes con su detalles incluidos con el metodo "GET" en https://clicohevaluacion.herokuapp.com/api/orderwithdetails
 
-Se puede obtener una orden con su detalles incluidos con el metodo "GET" en https://clicohevaluacion.herokuapp.com/api/orderwithdetails el id de la orden
+Se puede obtener una orden con su detalles incluidos con el metodo "GET" en https://clicohevaluacion.herokuapp.com/api/orderwithdetails/{pk} donde {pk} es el id de la orden
 
 Se puede listar todas las cabeceras de las ordenes con el metodo "GET" en https://clicohevaluacion.herokuapp.com/api/order
 
-Se puede obtener una cabecera de una orden con el metodo "GET" en https://clicohevaluacion.herokuapp.com/api/order el id de la orden
+Se puede obtener una cabecera de una orden con el metodo "GET" en https://clicohevaluacion.herokuapp.com/api/order/{pk} donde {pk} es el id de la orden
 
 
 Se puede cargar una orden completa con sus detalles con el metodo "POST" en https://clicohevaluacion.herokuapp.com/api/orderwithdetails
@@ -97,66 +97,24 @@ Se puede modificar y agregar una cabeceras de una orden con el metodo "POST" en 
 
 
 
-Se puede obtener una cabecera de una orden con el metodo "GET" en https://clicohevaluacion.herokuapp.com/api/order el id de la orden
+Se puede obtener una cabecera de una orden con el metodo "GET" en https://clicohevaluacion.herokuapp.com/api/order/{pk} donde {pk} es el id de la orden
 
+Se puede eliminar una orden con el metodo "DELETE" en https://clicohevaluacion.herokuapp.com/api/order/{pk} donde {pk} es el id de la orden
 
+Por ejemplo: https://clicohevaluacion.herokuapp.com/api/order/4
 
+#Ordenes detalles 
 
+Se pude modificar y agregar detalles de ordenes con el metodo "POST" en https://clicohevaluacion.herokuapp.com/api/orderdetail
 
+Si la orden y producto ya existe solo se modificara la cantidad introducida
 
+#Totales de venta
 
+Se puede obtener el todal de la venta en https://clicohevaluacion.herokuapp.com/api/order/{pk}/get_total donde {pk} es el id de la orden
 
+por ejemplo: https://clicohevaluacion.herokuapp.com/api/order/1/get_total
 
+De igual manera se puede obtener el total en dolar blue en https://clicohevaluacion.herokuapp.com/api/order/{pk}/get_total_usd donde {pk} es el id de la orden
 
-
-
-
-
-clicohevaluacion@gmail.com
-
-clicohevaluacion99
-
-heroku
-
-clicohevaluacion99+
-
-git
-
-clicoh99
-
-superuser
-
-admin-admin99
-
-ejemplo eliminacion de Producto 
-DELETE http://127.0.0.1:8000/api/product/Cara-Naranja
-
-ejemplo movimiento
-http://127.0.0.1:8000/api/movproduct/
-
-    {
-        "id" : "Chupetin-Pomelo",
-        "movement" : -100
-    }
-
-
-api/orderwithdetails
-
-solo crea
-
-    [{
-        "id": 3,
-        "date_time": "2021-11-20T22:03:18.892433",
-        "order": [
-            {
-                "order": 3,
-                "cuantity": 10,
-                "product": "Cara-Frutilla"
-            },
-            {
-                "order": 3,
-                "cuantity": 10,
-                "product": "Cara-Limon"
-            }
-        ]
-    }]
+por ejemplo: https://clicohevaluacion.herokuapp.com/api/order/1/get_total_usd
