@@ -7,4 +7,4 @@ pytz==2019.3
 whitenoise==5.0.1
 mysqlclient==2.0.3
 djangorestframework-simplejwt==4.6.0
-request=2.26.0
+requests==2.26.0
