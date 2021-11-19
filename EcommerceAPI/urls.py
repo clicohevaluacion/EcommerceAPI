@@ -28,7 +28,9 @@ router = routers.DefaultRouter(trailing_slash=False)
 ######### Ventas #####################
 router.register(r'product', ProductViewSet)
 router.register(r'order', OrderViewSet)
-router.register(r'orderDetail', OrderDetailViewSet)
+router.register(r'orderdetail', OrderDetailViewSet)
+router.register(r'orderwithdetails', OrderwithDetailsViewSet)
+
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -42,5 +44,6 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     url('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    url('api/movproduct/', MovProductView.as_view(), name='movproduct'),##revisar
 #########################################################################
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

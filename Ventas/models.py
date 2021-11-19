@@ -12,7 +12,7 @@ class Product(models.Model):
     # id =    models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name =  models.CharField(db_column='sName', max_length=100, blank=True, null=True, unique=True)
     price = models.FloatField(db_column='fPrice', blank=False, null=False, default=0)
-    stock = models.IntegerField(db_column='iStock', blank=False, null=False, default=0)
+    stock = models.PositiveIntegerField(db_column='iStock', blank=False, null=False, default=0)
 
     class Meta:
         db_table = 'Product'
@@ -23,7 +23,7 @@ class Product(models.Model):
         return str(self.id)
 
 class Order(models.Model):
-    id =        models.IntegerField(db_column='id', primary_key=True, blank=False, null=False, unique=True)
+    id =        models.PositiveIntegerField(db_column='id', primary_key=True, blank=False, null=False, unique=True)
     date_time = models.DateTimeField(db_column='fDatetime', null=True, blank=True, auto_now_add=True)
 
     class Meta:
@@ -43,14 +43,17 @@ class Order(models.Model):
         super(Order, self).save(*args, **kwargs)
 
 class OrderDetail(models.Model):
-    order =    models.ForeignKey('Order', models.SET_NULL, blank=False, null=True)
+    order =    models.ForeignKey('Order', models.SET_NULL, blank=False, null=True, related_name='order')
     cuantity = models.IntegerField(db_column='iCuantity', blank=False, null=False, default=0)
     product =  models.ForeignKey('Product', models.SET_NULL, blank=False, null=True)
+
+
 
     class Meta:
         db_table = 'OrderDetail'
         verbose_name_plural = 'OrdersDetails'
         verbose_name = 'OrderDetail'
+        unique_together = ('order', 'product')
 
     def __str__(self):
         return str(self.order)
