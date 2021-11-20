@@ -365,26 +365,31 @@ class OrderwithDetailsViewSet(ModelViewSet):
 
             if not existe.count() > 0:
 
-                with transaction.atomic():
-                    neworder = Order.objects.create(id=list_elt["id"], date_time=list_elt["date_time"])
-                    for list_elt_detail in list_elt["order"]:
+                for list_elt_detail in list_elt["order"]:
+                    if "product" in list_elt_detail:
+                        if list_elt_detail["product"] is not None:
+                            exiteProducto = Product.objects.filter(id=list_elt_detail.get("product"))
 
-                        if "product" in list_elt_detail:
-                            if list_elt_detail["product"] is not None:
-                                exiteProducto = Product.objects.filter(id=list_elt_detail.get("product"))
-
-                                if exiteProducto.count() > 0:
-                                    list_elt_detail["product"] = Product.objects.get(id=list_elt_detail.get("product"))
-                                else:
-                                    return Response({"Error": ["No existe el producto"]},
-                                                    status=status.HTTP_400_BAD_REQUEST)
+                            if exiteProducto.count() > 0:
+                                list_elt_detail["product"] = Product.objects.get(id=list_elt_detail.get("product"))
                             else:
-                                return Response({"Error": ["Ingrese un Producto"]}, status=status.HTTP_400_BAD_REQUEST)
+                                return Response({"Error": ["No existe el producto " + list_elt_detail.get("product")]}, status=status.HTTP_400_BAD_REQUEST)
+                        else:
+                            return Response({"Error": ["Ingrese un Producto"]}, status=status.HTTP_400_BAD_REQUEST)
+
+                    if (list_elt_detail["product"].stock - int(list_elt_detail["cuantity"])) < 0:
+                        return Response({"Error": ["No posee el Stock suficiente en el producto " + list_elt_detail["product"].id]}, status=status.HTTP_400_BAD_REQUEST)
+
+                with transaction.atomic():
+
+                    neworder = Order.objects.create(id=list_elt["id"], date_time=list_elt["date_time"])
+
+                    for list_elt_detail in list_elt["order"]:
 
                         OrderDetail.objects.create(order=neworder, cuantity=list_elt_detail["cuantity"], product=list_elt_detail["product"])
                         exiteProducto.update(stock=list_elt_detail["product"].stock - int(list_elt_detail["cuantity"]))
             else:
-                return Response({"Error": ["Ya existe la orden"]}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"Error": ["Ya existe la orden "+ str(list_elt.get('id'))]}, status=status.HTTP_400_BAD_REQUEST)
 
             order.append(list_elt.get('id'))
         results = Order.objects.filter(id__in=order)
