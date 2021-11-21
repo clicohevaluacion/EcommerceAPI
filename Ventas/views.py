@@ -185,9 +185,7 @@ class OrderViewSet(ModelViewSet):
     def get_total(self, request, pk):
         ordersdetails = OrderDetail.objects.filter(order=pk)
 
-
         if ordersdetails.count() > 0:
-
             countprice = 0
             for elto in range(len(ordersdetails)):
                 exiteProducto = Product.objects.filter(id=ordersdetails[elto].product)
@@ -311,18 +309,23 @@ class OrderDetailViewSet(ModelViewSet):
                 else:
                     return Response({"Error": ["Ingrese un Producto"]}, status=status.HTTP_400_BAD_REQUEST)
 
-            existe = OrderDetail.objects.filter(order=list_elt.get('order'), product=list_elt.get('product'))
+            existeOrderDetail = OrderDetail.objects.filter(order=list_elt.get('order'), product=list_elt.get('product'))
 
-            if existe.count() > 0:
-                if (list_elt["product"].stock + (existe[0].cuantity - int(list_elt["cuantity"]))) < 0:
+            if existeOrderDetail.count() > 0:
+                detail = OrderDetail.objects.get(order=list_elt.get('order'), product=list_elt.get('product'))
+                if (list_elt["product"].stock + (detail.cuantity - int(list_elt["cuantity"]))) < 0:
                     return Response({"Error": ["No posee el Stock suficiente en el producto"]}, status=status.HTTP_400_BAD_REQUEST)
 
                 with transaction.atomic():
-                    exiteProducto.update(stock=list_elt["product"].stock + (existe[0].cuantity - int(list_elt["cuantity"])))
-                    existe.update(**list_elt)
+                    list_elt["product"].stock = list_elt["product"].stock + (detail.cuantity - int(list_elt["cuantity"]))
+                    list_elt["product"].save()
+                    detail.cuantity = int(list_elt["cuantity"])
+                    detail.product = list_elt["product"]
+                    detail.save()
             else:
                 with transaction.atomic():
-                    exiteProducto.update(stock=list_elt["product"].stock-int(list_elt["cuantity"]))
+                    list_elt["product"].stock = list_elt["product"].stock-int(list_elt["cuantity"])
+                    list_elt["product"].save()
                     OrderDetail.objects.create(**list_elt)
 
             orderdetail.append(list_elt.get('order'))
@@ -335,12 +338,13 @@ class OrderDetailViewSet(ModelViewSet):
         try:
             with transaction.atomic():
                 orderdetail = OrderDetail.objects.get(product=request.data["product"], order=request.data["order"])
-                exiteProducto = Product.objects.filter(id=orderdetail.product)
-                exiteProducto.update(stock=exiteProducto[0].stock + orderdetail.cuantity)
+                product = Product.objects.get(id=orderdetail.product)
+                product.stock = product.stock + orderdetail.cuantity
+                product.save()
                 self.perform_destroy(orderdetail)
-        except Http404:
-            pass
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response({"Error": ["Error al eliminar el detalle"]}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"Respuesta": ["Se elimino el detalle"]}, status=status.HTTP_200_OK)
 
 class OrderwithDetailsViewSet(ModelViewSet):
     queryset = Order.objects.all()
@@ -373,6 +377,13 @@ class OrderwithDetailsViewSet(ModelViewSet):
             if not existe.count() > 0:
 
                 for list_elt_detail in list_elt["order"]:
+
+                    if "cuantity" in list_elt_detail:
+                        if not int(list_elt_detail["cuantity"]) > 0:
+                            return Response({"Error": ["Ingrese una Cantidad mayor a 0 (Cero)"]}, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        return Response({"Error": ["Ingrese una Cantidad"]}, status=status.HTTP_400_BAD_REQUEST)
+
                     if "product" in list_elt_detail:
                         if list_elt_detail["product"] is not None:
                             exiteProducto = Product.objects.filter(id=list_elt_detail.get("product"))
@@ -393,7 +404,11 @@ class OrderwithDetailsViewSet(ModelViewSet):
 
                     for list_elt_detail in list_elt["order"]:
                         list_elt_detail["product"] = Product.objects.get(id=list_elt_detail.get("product"))
-                        OrderDetail.objects.create(order=neworder, cuantity=list_elt_detail["cuantity"], product=list_elt_detail["product"])
+                        try:
+                            OrderDetail.objects.create(order=neworder, cuantity=list_elt_detail["cuantity"], product=list_elt_detail["product"])
+                        except Exception:
+                            return Response({"Error": [ "Productos duplicados " + list_elt_detail["product"].id]}, status=status.HTTP_400_BAD_REQUEST)
+
                         list_elt_detail["product"].stock = list_elt_detail["product"].stock - int(list_elt_detail["cuantity"])
                         list_elt_detail["product"].save()
             else:
