@@ -172,8 +172,9 @@ class OrderViewSet(ModelViewSet):
                 orderdetail = OrderDetail.objects.filter(order=instance)
                 if orderdetail.count() > 0:
                     for elto in range(len(orderdetail)):
-                        exiteProducto = Product.objects.filter(id=orderdetail[elto].product)
-                        exiteProducto.update(stock=exiteProducto[0].stock + int(orderdetail[elto].cuantity))
+                        product = Product.objects.get(id=orderdetail[elto].product)
+                        product.stock = product.stock + int(orderdetail[elto].cuantity)
+                        product.save()
                     orderdetail.delete()
                 self.perform_destroy(instance)
         except:
