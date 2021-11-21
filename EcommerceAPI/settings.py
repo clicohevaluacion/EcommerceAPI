@@ -96,7 +96,10 @@ DATABASES = {
         'PORT': '5432',
         'NAME': 'ddb1eepr46gaju',
         'USER': 'yblxcnaksiwvoa',
-        'PASSWORD': '7e04ceae5e1419b1780cfcc2c9a5d77f6eb5f7fa1e8df222a8242bb0527504a4'
+        'PASSWORD': '7e04ceae5e1419b1780cfcc2c9a5d77f6eb5f7fa1e8df222a8242bb0527504a4',
+        'TEST': {
+            'NAME': 'ddb1eepr46gaju',
+        }
     }
 }
 
