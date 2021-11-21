@@ -81,11 +81,17 @@ class ProductViewSet(ModelViewSet):
                 if float(list_elt["price"]) < 0:
                     return Response({"Error": ["Ingrese un Precio mayor o igual a Cero"]}, status=status.HTTP_400_BAD_REQUEST)
 
+            if "name" in list_elt:
+                if list_elt["name"] is '':
+                    return Response({"Error": ["Debe ingresar un nombre"]}, status=status.HTTP_400_BAD_REQUEST)
+
             existe = Product.objects.filter(id=list_elt.get('id'))
 
             if existe.count() > 0:
                 existe.update(**list_elt)
             else:
+                if "name" not in list_elt:
+                    return Response({"Error": ["Debe especificar el nombre"]}, status=status.HTTP_400_BAD_REQUEST)
                 Product.objects.create(**list_elt)
 
             product.append(list_elt.get('id'))
@@ -105,7 +111,7 @@ class ProductViewSet(ModelViewSet):
             self.perform_destroy(instance)
         except:
             return Response({"Error": ["No se pudo borrar el producto"]}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({"Respuesta": ["Se elimino el Producto"]}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"Respuesta": ["Se elimino el Producto"]}, status=status.HTTP_200_OK)
 
 class MovProductView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -385,9 +391,10 @@ class OrderwithDetailsViewSet(ModelViewSet):
                     neworder = Order.objects.create(id=list_elt["id"], date_time=list_elt["date_time"])
 
                     for list_elt_detail in list_elt["order"]:
-
+                        list_elt_detail["product"] = Product.objects.get(id=list_elt_detail.get("product"))
                         OrderDetail.objects.create(order=neworder, cuantity=list_elt_detail["cuantity"], product=list_elt_detail["product"])
-                        exiteProducto.update(stock=list_elt_detail["product"].stock - int(list_elt_detail["cuantity"]))
+                        list_elt_detail["product"].stock = list_elt_detail["product"].stock - int(list_elt_detail["cuantity"])
+                        list_elt_detail["product"].save()
             else:
                 return Response({"Error": ["Ya existe la orden "+ str(list_elt.get('id'))]}, status=status.HTTP_400_BAD_REQUEST)
 
