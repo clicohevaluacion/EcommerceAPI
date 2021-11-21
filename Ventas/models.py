@@ -1,3 +1,5 @@
+import json, requests
+
 from django.db import models
 
 import uuid
@@ -41,6 +43,49 @@ class Order(models.Model):
             except:
                 self.id = 1
         super(Order, self).save(*args, **kwargs)
+
+    @property
+    def get_total(self):
+        ordersdetails = OrderDetail.objects.filter(order=self.id)
+        countprice = 0
+        if ordersdetails.count() > 0:
+            countprice = 0
+            for elto in range(len(ordersdetails)):
+                exiteProducto = Product.objects.filter(id=ordersdetails[elto].product)
+
+                if exiteProducto.count() > 0:
+                     product = Product.objects.get(id=ordersdetails[elto].product)
+                     countprice = countprice + (product.price * ordersdetails[elto].cuantity)
+        return countprice
+
+    @property
+    def get_total_usd(self):
+        ordersdetails = OrderDetail.objects.filter(order=self.id)
+
+        sumprice = 0
+        if ordersdetails.count() > 0:
+
+            for elto in range(len(ordersdetails)):
+                exiteProducto = Product.objects.filter(id=ordersdetails[elto].product)
+
+                if exiteProducto.count() > 0:
+                     product = Product.objects.get(id=ordersdetails[elto].product)
+                     sumprice = sumprice + (product.price * ordersdetails[elto].cuantity)
+
+        if sumprice == 0:
+            return 0
+
+        url = requests.get("https://www.dolarsi.com/api/api.php?type=valoresprincipales")
+        text = url.text
+
+        data = json.loads(text)
+        casa = 0
+        for elto in data:
+            if elto['casa']['nombre'] == 'Dolar Blue':
+                casa = float(elto['casa']['venta'].replace(",", "."))
+        if casa == 0:
+            return 'Sin valor dolar'
+        return round(sumprice / casa, 2)
 
 class OrderDetail(models.Model):
     order =    models.ForeignKey('Order', models.SET_NULL, blank=False, null=True, related_name='order')
